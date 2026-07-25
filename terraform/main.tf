@@ -111,3 +111,20 @@ resource "google_project_iam_member" "deployer_permissions" {
   role     = each.key
   member   = "serviceAccount:${google_service_account.github_deployer.email}"
 }
+
+# 11. Create GCP Service Account for Cloud Run Application Runtime
+resource "google_service_account" "app_runner" {
+  account_id   = "ad-event-collector-runner"
+  display_name = "Ad Event Collector App Runner"
+  project      = var.project_id
+  depends_on   = [google_project_service.iam_api]
+}
+
+# 12. Grant Pub/Sub Publisher rights to the App Runner Service Account on the ad-events topic
+resource "google_pubsub_topic_iam_member" "runner_publisher" {
+  project = var.project_id
+  topic   = google_pubsub_topic.ad_events.name
+  role    = "roles/pubsub.publisher"
+  member  = "serviceAccount:${google_service_account.app_runner.email}"
+}
+

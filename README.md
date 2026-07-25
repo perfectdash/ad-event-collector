@@ -1,4 +1,4 @@
-# Low-Latency Ad Event Collector & Gateway (Project 2)
+# Low-Latency Ad Event Collector & Gateway 
 
 This service is a high-concurrency, ultra-low-latency API gateway designed to ingest massive streams of ad events (clicks, impressions, and conversions), validate their schemas, and publish them asynchronously to **Google Cloud Pub/Sub** without blocking client response times.
 
