@@ -96,9 +96,3 @@ python benchmarks/benchmark.py --url http://127.0.0.1:8000/api/v1/events --reque
 ```
 
 ---
-
-## 4. Google Ads Interview Talking Points
-
-* **Network vs. Memory Operations:** Network calls are the primary latency bottleneck in microservices. In-memory operations in Python (`queue.put_nowait()`) take less than a microsecond, whereas publishing to Pub/Sub over HTTP takes 20-50ms. Asynchronous decoupling shifts this overhead out of the client request path.
-* **Why not Celery / Redis?** For a simple low-latency ingestion path, introducing Redis/Celery adds an extra network roundtrip between the API and Redis. An in-memory queue inside the ASGI loop runs in the same process space, maintaining zero network overhead at ingestion.
-* **Thread Pooling for GCP client:** The Google Cloud Pub/Sub library is synchronous. Calling it directly inside async code would freeze the event loop. In `publisher.py`, we run the publisher using `loop.run_in_executor(None, ...)` to offload these blocking requests to a background thread pool, keeping the main ASGI event loop completely free.
