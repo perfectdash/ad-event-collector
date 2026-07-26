@@ -32,7 +32,9 @@ ENV PYTHONPATH=/app
 # Run as non-privileged system user for container security compliance
 USER 65534:65534
 
-EXPOSE 8000
+EXPOSE 8080
 
 # Run with uvloop event-loop and warning log level to reduce output logging overhead during benchmarks
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--loop", "uvloop", "--log-level", "warning"]
+# Uses sh -c to expand the $PORT environment variable dynamically injected by Cloud Run
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 4 --loop uvloop --log-level warning"]
+
