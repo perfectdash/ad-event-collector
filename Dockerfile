@@ -35,6 +35,6 @@ EXPOSE 8080
 
 # Run with uvloop event-loop and warning log level to reduce output logging overhead during benchmarks
 # Uses sh -c to expand the $PORT environment variable dynamically injected by Cloud Run
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 4 --loop uvloop --log-level warning"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 8 --loop uvloop --log-level warning"]
 
 
