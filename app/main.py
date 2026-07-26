@@ -6,11 +6,12 @@ from app.config import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Start background batching worker
+    # I did this to start the background batching worker
     await publisher.start()
     yield
-    # Shutdown: Stop worker and flush queue
+    # I did this to stop the worker and flush the queue on shutdown
     await publisher.stop()
+
 
 app = FastAPI(
     title="Low-Latency Ad Event Collector & Gateway",

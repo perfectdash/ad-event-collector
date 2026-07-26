@@ -51,7 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # Required for Workload Identity Federation
+      id-token: write # I did this to allow token generation for Workload Identity Federation
+
 
     steps:
       - name: Checkout Code

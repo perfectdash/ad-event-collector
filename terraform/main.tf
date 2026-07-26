@@ -1,29 +1,25 @@
-# 1. Enable Pub/Sub API
+# I did this to enable the Pub/Sub API
 resource "google_project_service" "pubsub_api" {
   project            = var.project_id
   service            = "pubsub.googleapis.com"
   disable_on_destroy = false
 }
 
-# 2. Create the ad-events-raw Pub/Sub topic
+# I did this to create the ad-events-raw Pub/Sub topic
 resource "google_pubsub_topic" "ad_events" {
   name       = var.topic_name
   project    = var.project_id
   depends_on = [google_project_service.pubsub_api]
 }
 
-# 3. Create a subscription for raw analytics consumption/verification
+# I did this to create a subscription for raw analytics consumption/verification
 resource "google_pubsub_subscription" "ad_events_sub" {
   name    = "${var.topic_name}-sub"
   topic   = google_pubsub_topic.ad_events.name
   project = var.project_id
 }
 
-# =============================================================================
-# ARTIFACT REGISTRY & WORKLOAD IDENTITY FEDERATION (WIF)
-# =============================================================================
-
-# 4. Enable IAM & Artifact Registry APIs
+# I did this to enable IAM and Artifact Registry APIs
 resource "google_project_service" "iam_api" {
   project            = var.project_id
   service            = "iam.googleapis.com"
@@ -42,7 +38,7 @@ resource "google_project_service" "artifactregistry_api" {
   disable_on_destroy = false
 }
 
-# 5. Create Artifact Registry Repository
+# I did this to create the Artifact Registry repository
 resource "google_artifact_registry_repository" "ad_gateway_repo" {
   location      = var.region
   repository_id = "ad-gateway-repo"
@@ -52,7 +48,7 @@ resource "google_artifact_registry_repository" "ad_gateway_repo" {
   depends_on    = [google_project_service.artifactregistry_api]
 }
 
-# 6. Create Workload Identity Pool
+# I did this to create the Workload Identity Pool
 resource "google_iam_workload_identity_pool" "github_pool" {
   workload_identity_pool_id = "ad-github-actions-pool"
   display_name              = "Ad Gateway GitHub Actions Pool"
@@ -61,7 +57,7 @@ resource "google_iam_workload_identity_pool" "github_pool" {
   depends_on                = [google_project_service.iam_api]
 }
 
-# 7. Create OIDC Provider
+# I did this to create the OIDC Provider
 resource "google_iam_workload_identity_pool_provider" "github_provider" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.github_pool.workload_identity_pool_id
   workload_identity_pool_provider_id = "github-provider"
@@ -81,7 +77,7 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
   }
 }
 
-# 8. Create GCP Service Account for GitHub Actions Impersonation
+# I did this to create the GCP Service Account for GitHub Actions Impersonation
 resource "google_service_account" "github_deployer" {
   account_id   = "ad-github-deployer"
   display_name = "Ad Gateway GitHub Actions Deployer"
@@ -89,14 +85,14 @@ resource "google_service_account" "github_deployer" {
   depends_on   = [google_project_service.iam_api]
 }
 
-# 9. Bind WIF Impersonation Rights to the GitHub Repository
+# I did this to bind WIF impersonation rights to the GitHub repository
 resource "google_service_account_iam_member" "wif_impersonation" {
   service_account_id = google_service_account.github_deployer.name
   role               = "roles/iam.workloadIdentityUser"
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool.name}/attribute.repository/${var.github_repository}"
 }
 
-# 10. Grant deployment permissions to the GitHub Deployer service account
+# I did this to grant deployment permissions to the GitHub Deployer service account
 locals {
   deployer_roles = [
     "roles/run.admin",
@@ -112,7 +108,7 @@ resource "google_project_iam_member" "deployer_permissions" {
   member   = "serviceAccount:${google_service_account.github_deployer.email}"
 }
 
-# 11. Create GCP Service Account for Cloud Run Application Runtime
+# I did this to create the GCP Service Account for Cloud Run Application Runtime
 resource "google_service_account" "app_runner" {
   account_id   = "ad-event-collector-runner"
   display_name = "Ad Event Collector App Runner"
@@ -120,11 +116,10 @@ resource "google_service_account" "app_runner" {
   depends_on   = [google_project_service.iam_api]
 }
 
-# 12. Grant Pub/Sub Publisher rights to the App Runner Service Account on the ad-events topic
+# I did this to grant Pub/Sub Publisher rights to the App Runner Service Account
 resource "google_pubsub_topic_iam_member" "runner_publisher" {
   project = var.project_id
   topic   = google_pubsub_topic.ad_events.name
   role    = "roles/pubsub.publisher"
   member  = "serviceAccount:${google_service_account.app_runner.email}"
 }
-

@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock
 
 @pytest_asyncio.fixture
 async def async_client():
-    # Setup Lifespan events during test environment
+    # I did this to setup lifespan events during testing
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
 
@@ -94,7 +94,7 @@ async def test_negative_cost(async_client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_backpressure_rate_limit(async_client: AsyncClient, monkeypatch):
-    # Mock enqueue_event to simulate a full queue
+    # I did this to mock enqueue_event and simulate a full queue
     mock_enqueue = AsyncMock(return_value=False)
     monkeypatch.setattr(publisher, "enqueue_event", mock_enqueue)
     

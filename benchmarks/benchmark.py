@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import List
 import httpx
 
-# Pre-generate some values to minimize CPU overhead in the benchmark script loop
+# I did this to pre-generate values and minimize client CPU overhead
 EVENT_TYPES = ["click", "impression", "conversion"]
 CAMPAIGNS = [f"camp-{random.randint(10000, 99999)}" for _ in range(50)]
 ADVERTISERS = [f"adv-{random.randint(10000, 99999)}" for _ in range(20)]
@@ -30,13 +30,14 @@ async def send_request(client: httpx.AsyncClient, url: str, payload: dict, semap
         start_time = time.perf_counter()
         try:
             response = await client.post(url, json=payload, timeout=10.0)
-            latency = (time.perf_counter() - start_time) * 1000.0  # in ms
+            latency = (time.perf_counter() - start_time) * 1000.0
             latencies.append(latency)
             status_codes.append(response.status_code)
         except Exception as e:
-            latency = (time.perf_counter() - start_time) * 1000.0  # in ms
+            latency = (time.perf_counter() - start_time) * 1000.0
             latencies.append(latency)
-            status_codes.append(0)  # Connection error / timeout
+            # I did this to represent connection error or timeout
+            status_codes.append(0)
 
 async def run_benchmark(url: str, num_requests: int, concurrency: int):
     print("Pre-generating payloads to eliminate client CPU bottlenecks...")
@@ -49,7 +50,7 @@ async def run_benchmark(url: str, num_requests: int, concurrency: int):
     latencies: List[float] = []
     status_codes: List[int] = []
     
-    # Configure connection pool limits for high concurrency
+    # I did this to configure connection pool limits for concurrency
     limits = httpx.Limits(max_keepalive_connections=concurrency, max_connections=concurrency * 2)
     
     start_wall_time = time.perf_counter()
@@ -64,7 +65,7 @@ async def run_benchmark(url: str, num_requests: int, concurrency: int):
     end_wall_time = time.perf_counter()
     total_elapsed = end_wall_time - start_wall_time
     
-    # Analyze statistics
+    # I did this to analyze metrics and print statistics
     if not latencies:
         print("Error: No latency data was collected.")
         return
@@ -109,7 +110,7 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     
-    # Support for Windows selector event loop warning output suppression
+    # I did this to suppress Windows selector event loop warnings
     if sys.platform == 'win32':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         

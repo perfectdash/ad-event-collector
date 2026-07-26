@@ -17,7 +17,7 @@ class AdEvent(BaseModel):
     @field_validator("event_id")
     @classmethod
     def validate_event_id(cls, v: str) -> str:
-        # Simple UUID format verification
+        # I did this to verify UUID format
         uuid_regex = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE)
         if not uuid_regex.match(v):
             raise ValueError("event_id must be a valid UUID v4")
@@ -26,13 +26,14 @@ class AdEvent(BaseModel):
     @field_validator("timestamp")
     @classmethod
     def validate_timestamp(cls, v: str) -> str:
-        # Verify it can be parsed as a datetime
+        # I did this to verify that the timestamp is a valid datetime format
         try:
-            # support ISO 8601 strings ending in Z or offsets
+            # I did this to support ISO 8601 strings ending in Z or offsets
             datetime.fromisoformat(v.replace("Z", "+00:00"))
         except ValueError:
             raise ValueError("timestamp must be in a valid ISO 8601 format")
         return v
+
 
     @field_validator("campaign_id")
     @classmethod
